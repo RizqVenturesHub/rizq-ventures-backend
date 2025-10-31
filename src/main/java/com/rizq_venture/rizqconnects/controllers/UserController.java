@@ -1,7 +1,6 @@
 package com.rizq_venture.rizqconnects.controllers;
 
-import com.rizq_venture.rizqconnects.dto.LoginReq;
-import com.rizq_venture.rizqconnects.dto.UserRequest;
+
 import com.rizq_venture.rizqconnects.dto.UserResponse;
 import com.rizq_venture.rizqconnects.services.UserService;
 import jakarta.validation.Valid;
@@ -20,16 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
 
-    private final UserService userService;
 
-    @PostMapping("/register")
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest){
-        return new ResponseEntity<>(userService.createUser(userRequest), HttpStatus.CREATED);
-
-    }
-    @PostMapping("/login")
-    public ResponseEntity<String> userLogin(@Valid @RequestBody LoginReq loginReq){
-        return new ResponseEntity<>(userService.userLogin(loginReq),HttpStatus.OK);
-    }
 
 }
