@@ -1,12 +1,22 @@
 package com.rizq_venture.rizqconnects.model;
 
+
+
 import jakarta.persistence.*;
-        import lombok.*;
-        import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
+@Table(name = "users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,39 +25,52 @@ public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long userId;
 
-
+    @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    private String password;
-
-
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    private String headline;               // e.g., "Software Engineer at Google"
+    @Column(length = 200)
+    private String headline;
+
+    @Column(name = "profile_picture_url", length = 500)
     private String profilePictureUrl;
+
+    @Column(length = 100)
     private String location;
 
+    @Column(columnDefinition = "TEXT")
+    private String about;
 
-    private String about;                  // bio/description
-
+    @Column(name = "current_position", length = 100)
     private String currentPosition;
+
+    @Column(name = "current_company", length = 100)
     private String currentCompany;
+
+    @Column(length = 100)
     private String industry;
+
+    @Column(name = "website_url", length = 300)
     private String websiteUrl;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    private Set<Role> roles=new HashSet<>();
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 
 }
-
