@@ -1,4 +1,4 @@
-package com.rizq_venture.rizqconnects.dto;
+package com.rizq_venture.rizqconnects.dto.response;
 
 
 import lombok.AllArgsConstructor;
@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -28,5 +29,6 @@ public class UserResponse {
     private String connectionStatus; // NOT_CONNECTED, PENDING, CONNECTED
     private Long connectionsCount;
     private LocalDateTime createdAt;
-
+    private List<ExperienceResponse> experiences;
+    private List<EducationResponse> educations;
 }

@@ -1,9 +1,9 @@
 package com.rizq_venture.rizqconnects.services.impl;
 
-import com.rizq_venture.rizqconnects.dto.AuthResponse;
-import com.rizq_venture.rizqconnects.dto.LoginRequest;
-import com.rizq_venture.rizqconnects.dto.RegisterRequest;
-import com.rizq_venture.rizqconnects.dto.UserResponse;
+import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
+import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
+import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
+import com.rizq_venture.rizqconnects.dto.response.UserResponse;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.UserRepo;
 import com.rizq_venture.rizqconnects.security.JwtTokenProvider;
@@ -42,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
                 .fullName(request.getFullName())
                 .headline(request.getHeadline())
                 .location(request.getLocation())
-                .currentPosition(request.getEmail())
                 .isActive(true)
                 .build();
 

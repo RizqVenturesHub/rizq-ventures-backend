@@ -1,4 +1,4 @@
-package com.rizq_venture.rizqconnects.dto;
+package com.rizq_venture.rizqconnects.dto.response;
 
 
 import lombok.AllArgsConstructor;
