@@ -1,4 +1,4 @@
-package com.rizq_venture.rizqconnects.dto;
+package com.rizq_venture.rizqconnects.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

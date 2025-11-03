@@ -1,9 +1,9 @@
 package com.rizq_venture.rizqconnects.controllers;
 
 
-import com.rizq_venture.rizqconnects.dto.AuthResponse;
-import com.rizq_venture.rizqconnects.dto.LoginRequest;
-import com.rizq_venture.rizqconnects.dto.RegisterRequest;
+import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
+import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
+import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
 import com.rizq_venture.rizqconnects.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

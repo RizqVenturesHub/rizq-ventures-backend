@@ -2,6 +2,7 @@ package com.rizq_venture.rizqconnects.dto;
 
 import jakarta.persistence.Column;
 
+
 public class UserDto {
 
     private String email;
