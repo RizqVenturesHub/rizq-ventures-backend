@@ -4,119 +4,162 @@ import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
 import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
 import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.model.Role;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.UserRepo;
 import com.rizq_venture.rizqconnects.security.JwtTokenProvider;
 import com.rizq_venture.rizqconnects.services.AuthService;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Builder
 public class AuthServiceImpl implements AuthService {
 
-
-    private final UserRepo userRepo;
+    private final UserRepo userRepository;
     private final PasswordEncoder passwordEncoder;
-    private  final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+        public AuthResponse register(RegisterRequest request) {
+        log.info("Registering new user with email: {} and role: {}",
+                request.getEmail(), request.getRole());
 
-        log.info("Regestring new email with: {}", request.getEmail());
-
-        if(userRepo.existsByEmail(request.getEmail())){
-            System.out.println("Email already exist");
+        // Check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered: " + request.getEmail());
         }
 
-        //Create User
-        Users users= Users.builder()
+        // Default role to USER if not specified
+        Role role = request.getRole() != null ? request.getRole() : Role.USER;
+
+        // Validate role-specific requirements
+        validateRoleRequirements(role, request);
+
+        // Create new user
+        Users user = Users.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .headline(request.getHeadline())
                 .location(request.getLocation())
+                .role(role)
                 .isActive(true)
                 .build();
 
-        users=userRepo.save(users);
-        log.info("User registered successfully with ID: {}",users.getUserId());
-
-        String token= jwtTokenProvider.generateToken(users.getUserId(),
-                                                     users.getEmail(),
-                                                     users.getFullName());
-
-        UserResponse userResponse=buildUserResponse(users);
-        
-        return AuthResponse.builder()
-                .token(token)
-                .user(userResponse)
-                .build();
-
-          }
-
-
-
-    @Override
-    public AuthResponse login(LoginRequest request) {
-
-        log.info("login attempt for email: {}", request.getEmail());
-
-        Users users = userRepo.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Credential not FOUND"));
-
-        if (!users.getIsActive()) {
-            throw new RuntimeException("Account is deactivated");
+        // Set role-specific fields
+        if (role == Role.PARTNER) {
+            user.setOrganizationName(request.getOrganizationName());
+        } else if (role == Role.MENTOR) {
+            user.setSpecializations(request.getSpecializations() != null
+                    ? request.getSpecializations() : new HashSet<>());
+            user.setYearsOfExperience(request.getYearsOfExperience());
+            user.setIsVerifiedMentor(false); // Requires admin verification
         }
-        if (!passwordEncoder.matches(request.getPassword(), users.getPasswordHash())) {
-            throw new RuntimeException("Invalid Credential");
-        }
-        log.info("User logged in Successfully: {}", users.getUserId());
 
+        user = userRepository.save(user);
+        log.info("User registered successfully with ID: {} and role: {}",
+                user.getUserId(), user.getRole());
 
+        // Generate JWT token with role
         String token = jwtTokenProvider.generateToken(
-                users.getUserId(),
-                users.getEmail(),
-                users.getFullName()
+                user.getUserId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole()
         );
 
-        UserResponse userResponse = buildUserResponse(users);
+        // Build response
+        UserResponse userResponse = buildUserResponse(user);
 
         return AuthResponse.builder()
                 .token(token)
                 .user(userResponse)
                 .build();
-
     }
 
-    @Override
-    public boolean validateToken(String token) {
+    @Transactional(readOnly = true)
+    public AuthResponse login(LoginRequest request) {
+        log.info("Login attempt for email: {}", request.getEmail());
 
+        // Find user by email
+        Users user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // Check if account is active
+        if (!user.getIsActive()) {
+            throw new RuntimeException("Account is deactivated");
+        }
+
+        // Verify password
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        log.info("User logged in successfully: {} with role: {}",
+                user.getUserId(), user.getRole());
+
+        // Generate JWT token with role
+        String token = jwtTokenProvider.generateToken(
+                user.getUserId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole()
+        );
+
+        // Build response
+        UserResponse userResponse = buildUserResponse(user);
+
+        return AuthResponse.builder()
+                .token(token)
+                .user(userResponse)
+                .build();
+    }
+
+    public boolean validateToken(String token) {
         return jwtTokenProvider.validateToken(token);
     }
 
+    private void validateRoleRequirements(Role role, RegisterRequest request) {
+        if (role == Role.PARTNER) {
+            if (request.getOrganizationName() == null || request.getOrganizationName().trim().isEmpty()) {
+                throw new RuntimeException("Organization name is required for Partner registration");
+            }
+        } else if (role == Role.MENTOR) {
+            if (request.getSpecializations() == null || request.getSpecializations().isEmpty()) {
+                throw new RuntimeException("At least one specialization is required for Mentor registration");
+            }
+            if (request.getYearsOfExperience() == null || request.getYearsOfExperience() < 0) {
+                throw new RuntimeException("Valid years of experience is required for Mentor registration");
+            }
+        }
+    }
 
-    private UserResponse buildUserResponse(Users users) {
-
+    private UserResponse buildUserResponse(Users user) {
         return UserResponse.builder()
-                .userId(users.getUserId())
-                .email(users.getEmail())
-                .fullName(users.getFullName())
-                .about(users.getAbout())
-                .location(users.getLocation())
-                .currentCompany(users.getCurrentCompany())
-                .currentPosition(users.getCurrentPosition())
-                .industry(users.getIndustry())
-                .headline(users.getHeadline())
-                .websiteUrl(users.getWebsiteUrl())
-                .createdAt(users.getCreatedAt())
+                .userId(user.getUserId())
+                .fullName(user.getFullName())
+                .email(user.getEmail())
+                .headline(user.getHeadline())
+                .profilePictureUrl(user.getProfilePictureUrl())
+                .location(user.getLocation())
+                .about(user.getAbout())
+                .currentPosition(user.getCurrentPosition())
+                .currentCompany(user.getCurrentCompany())
+                .industry(user.getIndustry())
+                .websiteUrl(user.getWebsiteUrl())
+                .role(user.getRole())
+                .organizationName(user.getOrganizationName())
+                .specializations(user.getSpecializations())
+                .yearsOfExperience(user.getYearsOfExperience())
+                .isVerifiedMentor(user.getIsVerifiedMentor())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }
-
-

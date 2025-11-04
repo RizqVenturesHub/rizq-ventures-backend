@@ -3,8 +3,10 @@ package com.rizq_venture.rizqconnects.controllers;
 
 import com.rizq_venture.rizqconnects.dto.request.EducationRequest;
 import com.rizq_venture.rizqconnects.dto.request.ExperienceRequest;
+import com.rizq_venture.rizqconnects.dto.request.SkillRequest;
 import com.rizq_venture.rizqconnects.dto.response.EducationResponse;
 import com.rizq_venture.rizqconnects.dto.response.ExperienceResponse;
+import com.rizq_venture.rizqconnects.dto.response.SkillResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
 import com.rizq_venture.rizqconnects.dto.request.UpdateProfileRequest;
 import com.rizq_venture.rizqconnects.services.UserService;
@@ -113,6 +115,56 @@ public class UserController {
                                                 Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         userService.deleteEducation(userId, educationId);
+        return ResponseEntity.noContent().build();
+    }
+
+    //Skill
+
+    @PostMapping("/me/skills")
+    public ResponseEntity<SkillResponse> addSkill(@Valid @RequestBody SkillRequest request,
+                                                  Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        SkillResponse response = userService.addSkill(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/skills")
+    public ResponseEntity<List<SkillResponse>> getSkills(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        List<SkillResponse> skills = userService.getUserSkills(userId);
+        return ResponseEntity.ok(skills);
+    }
+
+    //  Get only primary skills
+    @GetMapping("/me/skills/primary")
+    public ResponseEntity<List<SkillResponse>> getPrimarySkills(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        List<SkillResponse> skills = userService.getPrimarySkills(userId);
+        return ResponseEntity.ok(skills);
+    }
+
+    // NEW: Get only secondary skills
+    @GetMapping("/me/skills/secondary")
+    public ResponseEntity<List<SkillResponse>> getSecondarySkills(Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        List<SkillResponse> skills = userService.getSecondarySkills(userId);
+        return ResponseEntity.ok(skills);
+    }
+
+    @PutMapping("/me/skills/{skillId}")
+    public ResponseEntity<SkillResponse> updateSkill(@PathVariable Long skillId,
+                                                     @Valid @RequestBody SkillRequest request,
+                                                     Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        SkillResponse response = userService.updateSkill(userId, skillId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/me/skills/{skillId}")
+    public ResponseEntity<Void> deleteSkill(@PathVariable Long skillId,
+                                            Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        userService.deleteSkill(userId, skillId);
         return ResponseEntity.noContent().build();
     }
 }

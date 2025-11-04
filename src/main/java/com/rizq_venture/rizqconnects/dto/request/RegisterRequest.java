@@ -1,6 +1,8 @@
 package com.rizq_venture.rizqconnects.dto.request;
 
+import com.rizq_venture.rizqconnects.model.Role;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -8,10 +10,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
 @Data
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
+@Builder
 public class RegisterRequest {
 
     @NotBlank(message = "Full name is required")
@@ -31,5 +34,17 @@ public class RegisterRequest {
 
     @Size(max = 100, message = "Location must not exceed 100 characters")
     private String location;
-}
 
+    // NEW: Role field (defaults to USER if not provided)
+    private Role role;
+
+    // NEW: For Partners
+    @Size(max = 200, message = "Organization name must not exceed 200 characters")
+    private String organizationName;
+
+    // NEW: For Mentors
+    private Set<String> specializations;
+
+    @Min(value = 0, message = "Years of experience must be non-negative")
+    private Integer yearsOfExperience;
+}
