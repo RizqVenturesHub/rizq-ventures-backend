@@ -1,5 +1,4 @@
-package com.rizq_venture.rizqconnects.model;
-
+package com.rizq_venture.rizqconnects.constant;
 
 public enum Role {
     USER,      // Regular users - cannot post jobs

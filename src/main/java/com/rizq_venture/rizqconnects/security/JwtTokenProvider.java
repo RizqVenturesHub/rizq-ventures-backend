@@ -1,4 +1,5 @@
 package com.rizq_venture.rizqconnects.security;
+import com.rizq_venture.rizqconnects.model.Role;
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,10 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
-
 import java.util.Date;
 
-// ==================== JwtTokenProvider ====================
 @Component
 @Slf4j
 public class JwtTokenProvider {
@@ -20,7 +19,7 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(Long userId, String email, String fullName) {
+    public String generateToken(Long userId, String email, String fullName, Role role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpiration);
 
@@ -28,6 +27,7 @@ public class JwtTokenProvider {
                 .setSubject(userId.toString())
                 .claim("email", email)
                 .claim("fullName", fullName)
+                .claim("role", role.name())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -48,6 +48,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.get("email", String.class);
+    }
+
+    public Role getRoleFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        String roleStr = claims.get("role", String.class);
+        return Role.valueOf(roleStr);
     }
 
     public boolean validateToken(String token) {

@@ -3,8 +3,10 @@ package com.rizq_venture.rizqconnects.services;
 
 import com.rizq_venture.rizqconnects.dto.request.EducationRequest;
 import com.rizq_venture.rizqconnects.dto.request.ExperienceRequest;
+import com.rizq_venture.rizqconnects.dto.request.SkillRequest;
 import com.rizq_venture.rizqconnects.dto.response.EducationResponse;
 import com.rizq_venture.rizqconnects.dto.response.ExperienceResponse;
+import com.rizq_venture.rizqconnects.dto.response.SkillResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
 import com.rizq_venture.rizqconnects.dto.request.UpdateProfileRequest;
 
@@ -24,4 +26,11 @@ public interface UserService {
     public List<EducationResponse> getUserEducation(Long userId);
     public EducationResponse updateEducation(Long userId, Long educationId, EducationRequest request);
     public void deleteEducation(Long userId, Long educationId);
+
+    public SkillResponse addSkill(Long userId, SkillRequest request);
+    public List<SkillResponse> getUserSkills(Long userId);
+    public List<SkillResponse> getPrimarySkills(Long userId);
+    public List<SkillResponse> getSecondarySkills(Long userId);
+    public SkillResponse updateSkill(Long userId, Long skillId, SkillRequest request);
+    public void deleteSkill(Long userId, Long skillId);
 }

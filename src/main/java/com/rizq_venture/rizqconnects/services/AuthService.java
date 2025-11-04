@@ -9,9 +9,12 @@ import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
 public interface AuthService {
 
 
-    AuthResponse register(RegisterRequest request);
 
-    AuthResponse login(LoginRequest request);
+    public AuthResponse register(RegisterRequest request);
+
+    public AuthResponse login(LoginRequest request);
+
 
     boolean validateToken(String token);
+
 }
