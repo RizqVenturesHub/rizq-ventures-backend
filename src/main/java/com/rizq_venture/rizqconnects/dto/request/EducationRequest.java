@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.dto.request;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

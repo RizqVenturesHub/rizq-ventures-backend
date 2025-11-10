@@ -1,7 +1,5 @@
 package com.rizq_venture.rizqconnects.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// ==================== Updated User Model with Roles ====================
+
 @Entity
 @Table(name = "users")
 @Data
@@ -64,27 +62,27 @@ public class Users {
     @Column(name = "website_url", length = 300)
     private String websiteUrl;
 
-    // NEW: Role field
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.USER;
 
-    // NEW: For Partners - Organization name
+
     @Column(name = "organization_name", length = 200)
     private String organizationName;
 
-    // NEW: For Mentors - Specialization areas
+
     @ElementCollection
     @CollectionTable(name = "mentor_specializations", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "specialization")
     private Set<String> specializations = new HashSet<>();
 
-    // NEW: For Mentors - Years of experience
+
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
 
-    // NEW: Mentor verification status
+
     @Column(name = "is_verified_mentor")
     @Builder.Default
     private Boolean isVerifiedMentor = false;

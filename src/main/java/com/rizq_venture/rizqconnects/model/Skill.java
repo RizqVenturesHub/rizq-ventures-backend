@@ -1,11 +1,13 @@
 package com.rizq_venture.rizqconnects.model;
 
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -28,13 +30,13 @@ public class Skill {
     @Column(name = "skill_name", nullable = false, length = 100)
     private String skillName;
 
-    // NEW: Skill Type (PRIMARY or SECONDARY)
+
     @Enumerated(EnumType.STRING)
     @Column(name = "skill_type", nullable = false, length = 20)
     @Builder.Default
     private SkillType skillType = SkillType.SECONDARY;
 
-    // NEW: Proficiency level (1-5)
+
     @Column(name = "proficiency_level")
     private Integer proficiencyLevel;
 
@@ -47,8 +49,8 @@ public class Skill {
     private LocalDateTime createdAt;
 
     public enum SkillType {
-        PRIMARY,    // Core skills - will receive job notifications
-        SECONDARY   // Additional skills - no notifications
+        PRIMARY,
+        SECONDARY
     }
 
     // Helper methods

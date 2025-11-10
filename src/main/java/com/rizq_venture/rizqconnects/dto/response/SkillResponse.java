@@ -16,10 +16,9 @@ public class SkillResponse {
     private Long skillId;
     private String skillName;
 
-    // NEW: Skill Type
     private Skill.SkillType skillType;
 
-    // NEW: Proficiency Level
+
     private Integer proficiencyLevel;
 
     private Integer endorsementsCount;

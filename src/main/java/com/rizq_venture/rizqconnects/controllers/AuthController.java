@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.controllers;
 
-
 import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
 import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
 import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
@@ -9,8 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 
     @RestController
     @RequestMapping("/api/auth")
