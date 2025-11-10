@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.services.impl;
 
-
 import com.rizq_venture.rizqconnects.dto.request.EducationRequest;
 import com.rizq_venture.rizqconnects.dto.request.ExperienceRequest;
 import com.rizq_venture.rizqconnects.dto.request.SkillRequest;
@@ -20,13 +19,10 @@ import com.rizq_venture.rizqconnects.repository.UserRepo;
 import com.rizq_venture.rizqconnects.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Slf4j
 @Service
@@ -38,14 +34,12 @@ public class UserServiceImpl implements UserService {
     private final ExperienceRepo experienceRepo;
     private final UserRepo userRepo;
 
-
-
     @Transactional
     public UserResponse getUserProfile(Long userId, Long currentUserId) {
 
         Users users = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException
-                        ("Id Not FOUND"));
+                        ("User Id Not FOUND"));
 
         UserResponse userResponse = buildUserResponse(users);
         userResponse.setExperiences(getUserExperiences(userId));
@@ -66,7 +60,7 @@ public class UserServiceImpl implements UserService {
         Users user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Update fields
+
         if (request.getHeadline() != null) user.setHeadline(request.getHeadline());
         if (request.getAbout() != null) user.setAbout(request.getAbout());
         if (request.getLocation() != null) user.setLocation(request.getLocation());
@@ -81,8 +75,6 @@ public class UserServiceImpl implements UserService {
 
         return buildUserResponse(user);
     }
-
-
 
     //Experience
     @Transactional
@@ -107,8 +99,6 @@ public class UserServiceImpl implements UserService {
 
         return buildExperienceResponse(experience);
     }
-
-
 
     @Transactional
     public ExperienceResponse updateExperience(Long userId, Long experienceId,
@@ -168,10 +158,7 @@ public class UserServiceImpl implements UserService {
                 .createdAt(users.getCreatedAt())
                 .build();
     }
-
     // Education
-
-
     @Override
     public EducationResponse addEducation( EducationRequest request,Long userId) {
 
@@ -234,20 +221,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Education not found"));
         educationRepo.delete(education);
     }
-
     // Skill
-
     @Transactional
     public SkillResponse addSkill(Long userId, SkillRequest request) {
         Users user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if skill already exists
         if (skillRepo.existsByUserUserIdAndSkillNameIgnoreCase(userId, request.getSkillName())) {
             throw new RuntimeException("Skill already exists");
         }
-
-        // NEW: Validate primary skills limit (max 5 primary skills)
         if (request.getSkillType() == Skill.SkillType.PRIMARY) {
             Long primaryCount = skillRepo.countPrimarySkills(userId);
             if (primaryCount >= 5) {
@@ -298,7 +280,6 @@ public class UserServiceImpl implements UserService {
         Skill skill = skillRepo.findBySkillIdAndUserUserId(skillId, userId)
                 .orElseThrow(() -> new RuntimeException("Skill not found"));
 
-        // NEW: If changing to PRIMARY, check limit
         if (request.getSkillType() == Skill.SkillType.PRIMARY &&
                 skill.getSkillType() != Skill.SkillType.PRIMARY) {
             Long primaryCount = skillRepo.countPrimarySkills(userId);

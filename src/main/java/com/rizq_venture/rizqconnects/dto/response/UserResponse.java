@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-// ==================== Updated UserResponse with Role ====================
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +29,7 @@ public class UserResponse {
     private String industry;
     private String websiteUrl;
 
-    // NEW: Role-related fields
+
     private Role role;
     private String organizationName; // For Partners
     private Set<String> specializations; // For Mentors

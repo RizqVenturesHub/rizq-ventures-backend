@@ -35,14 +35,11 @@ public class RegisterRequest {
     @Size(max = 100, message = "Location must not exceed 100 characters")
     private String location;
 
-    // NEW: Role field (defaults to USER if not provided)
     private Role role;
 
-    // NEW: For Partners
     @Size(max = 200, message = "Organization name must not exceed 200 characters")
     private String organizationName;
 
-    // NEW: For Mentors
     private Set<String> specializations;
 
     @Min(value = 0, message = "Years of experience must be non-negative")
