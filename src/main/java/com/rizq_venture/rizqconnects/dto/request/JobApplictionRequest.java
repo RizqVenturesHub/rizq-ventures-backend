@@ -1,0 +1,17 @@
+package com.rizq_venture.rizqconnects.dto.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+class JobApplicationRequest {
+
+    private String resumeUrl;
+
+    private String coverLetter;
+}
