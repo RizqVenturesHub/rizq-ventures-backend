@@ -71,9 +71,9 @@ public class Job {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-//
-//    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<JobApplication> applications = new ArrayList<>();
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JobApplication> applications = new ArrayList<>();
 
     public enum JobType {
         FULL_TIME,

@@ -38,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/me")
+    @PutMapping("/myprofile")
     public ResponseEntity<UserResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request,
                                                       Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -47,7 +47,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/me/experiences")
+    @PostMapping("/myprofile/experiences")
     public ResponseEntity<ExperienceResponse> addExperience(@Valid @RequestBody ExperienceRequest request,
                                                             Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -55,14 +55,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/me/experiences")
+    @GetMapping("/myprofile/experiences")
     public ResponseEntity<List<ExperienceResponse>> getExperiences(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         List<ExperienceResponse> experiences = userService.getUserExperiences(userId);
         return ResponseEntity.ok(experiences);
     }
 
-    @PutMapping("/me/experiences/{experienceId}")
+    @PutMapping("/myprofile/experiences/{experienceId}")
     public ResponseEntity<ExperienceResponse> updateExperience(@PathVariable Long experienceId,
                                                                @Valid @RequestBody ExperienceRequest request,
                                                                Authentication authentication) {
@@ -71,7 +71,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/me/experiences/{experienceId}")
+    @DeleteMapping("/myprofile/experiences/{experienceId}")
     public ResponseEntity<Void> deleteExperience(@PathVariable Long experienceId,
                                                  Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -80,7 +80,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/me/education")
+    @PostMapping("/myprofile/education")
     public ResponseEntity<EducationResponse> addEducation(@Valid @RequestBody EducationRequest educationRequest
                                                           ,Authentication authentication){
 
@@ -89,7 +89,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/me/education")
+    @GetMapping("/myprofile/education")
     public ResponseEntity<List<EducationResponse>> getUserEducation
             (Authentication authentication){
 
@@ -99,7 +99,7 @@ public class UserController {
         return ResponseEntity.ok(responses);
     }
 
-    @PutMapping("/me/education/{educationId}")
+    @PutMapping("/myprofile/education/{educationId}")
     public ResponseEntity<EducationResponse> updateEducation(@PathVariable Long educationId,
                                                              @Valid @RequestBody EducationRequest request,
                                                              Authentication authentication) {
@@ -108,7 +108,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/me/education/{educationId}")
+    @DeleteMapping("/myprofile/education/{educationId}")
     public ResponseEntity<Void> deleteEducation(@PathVariable Long educationId,
                                                 Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -118,7 +118,7 @@ public class UserController {
 
     //Skill
 
-    @PostMapping("/me/skills")
+    @PostMapping("/myprofile/skills")
     public ResponseEntity<SkillResponse> addSkill(@Valid @RequestBody SkillRequest request,
                                                   Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -126,30 +126,28 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/me/skills")
+    @GetMapping("/myprofile/skills")
     public ResponseEntity<List<SkillResponse>> getSkills(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         List<SkillResponse> skills = userService.getUserSkills(userId);
         return ResponseEntity.ok(skills);
     }
 
-    //  Get only primary skills
-    @GetMapping("/me/skills/primary")
+    @GetMapping("/myprofile/skills/primary")
     public ResponseEntity<List<SkillResponse>> getPrimarySkills(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         List<SkillResponse> skills = userService.getPrimarySkills(userId);
         return ResponseEntity.ok(skills);
     }
 
-    // NEW: Get only secondary skills
-    @GetMapping("/me/skills/secondary")
+    @GetMapping("/myprofile/skills/secondary")
     public ResponseEntity<List<SkillResponse>> getSecondarySkills(Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
         List<SkillResponse> skills = userService.getSecondarySkills(userId);
         return ResponseEntity.ok(skills);
     }
 
-    @PutMapping("/me/skills/{skillId}")
+    @PutMapping("/myprofile/skills/{skillId}")
     public ResponseEntity<SkillResponse> updateSkill(@PathVariable Long skillId,
                                                      @Valid @RequestBody SkillRequest request,
                                                      Authentication authentication) {
@@ -158,7 +156,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/me/skills/{skillId}")
+    @DeleteMapping("/myprofile/skills/{skillId}")
     public ResponseEntity<Void> deleteSkill(@PathVariable Long skillId,
                                             Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
