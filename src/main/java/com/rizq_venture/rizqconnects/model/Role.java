@@ -1,8 +1,8 @@
 package com.rizq_venture.rizqconnects.model;
 
-
 public enum Role {
-    USER,      // Regular users - cannot post jobs
-    MENTOR,    // Can post jobs, can message users
-    PARTNER    // Can post jobs (companies/organizations)
+    USER,
+    MENTOR,
+    PARTNER,
+    SUPER_ADMIN
 }

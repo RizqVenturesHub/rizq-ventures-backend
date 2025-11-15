@@ -17,11 +17,9 @@ public class SkillRequest {
     @Size(max = 100, message = "Skill name must not exceed 100 characters")
     private String skillName;
 
-    // NEW: Skill Type (PRIMARY or SECONDARY)
     @NotNull(message = "Skill type is required")
     private Skill.SkillType skillType;
 
-    // NEW: Proficiency Level (1-5)
     @Min(value = 1, message = "Proficiency level must be between 1 and 5")
     @Max(value = 5, message = "Proficiency level must be between 1 and 5")
     private Integer proficiencyLevel;

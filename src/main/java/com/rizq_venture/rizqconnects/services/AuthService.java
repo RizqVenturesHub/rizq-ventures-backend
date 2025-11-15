@@ -4,17 +4,10 @@ import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
 import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
 import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
 
-
-
 public interface AuthService {
 
-
-
     public AuthResponse register(RegisterRequest request);
-
     public AuthResponse login(LoginRequest request);
-
-
     boolean validateToken(String token);
 
 }

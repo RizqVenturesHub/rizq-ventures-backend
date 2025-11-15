@@ -1,10 +1,13 @@
 package com.rizq_venture.rizqconnects.services.impl;
 
+import com.rizq_venture.rizqconnects.dto.request.JobApplicationRequest;
 import com.rizq_venture.rizqconnects.dto.request.JobRequest;
 import com.rizq_venture.rizqconnects.dto.response.JobApplicationResponse;
 import com.rizq_venture.rizqconnects.dto.response.JobResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
 import com.rizq_venture.rizqconnects.model.Job;
+import com.rizq_venture.rizqconnects.model.JobApplication;
+import com.rizq_venture.rizqconnects.model.Role;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.JobApplicationRepo;
 import com.rizq_venture.rizqconnects.repository.JobRepo;
@@ -17,74 +20,89 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class JobServiceImpl implements JobService {
 
-    private final JobApplicationRepo jobApplicationRepo;
     private final JobRepo jobRepo;
+    private final JobApplicationRepo jobApplicationRepo;
     private final UserRepo userRepo;
 
-    @Override
+    @Transactional
     public JobResponse createJob(Long userId, JobRequest request) {
+        Users user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    Users users=userRepo.findById(userId).orElseThrow(()->new RuntimeException("User not FOUND"));
+        if (!user.canPostJobs()) {
+            throw new RuntimeException("Only Mentors and Partners can post jobs");
+        }
 
-    Job job=Job.builder()
-            .postedBy(users)
-            .companyName(request.getCompanyName())
-            .jobTitle(request.getJobTitle())
-            .jobDescription(request.getJobDescription())
-            .location(request.getLocation())
-            .jobType(request.getJobType())
-            .experienceLevel(request.getExperienceLevel())
-            .skillsRequired(request.getSkillsRequired())
-            .salaryRange(request.getSalaryRange())
-            .applicationDeadline(request.getApplicationDeadline())
-            .isActive(true)
-            .build();
-    jobRepo.save(job);
-        return buildJobResponse(job,userId);
+        Job job = Job.builder()
+                .postedBy(user)
+                .companyName(request.getCompanyName())
+                .jobTitle(request.getJobTitle())
+                .jobDescription(request.getJobDescription())
+                .location(request.getLocation())
+                .jobType(request.getJobType())
+                .experienceLevel(request.getExperienceLevel())
+                .skillsRequired(request.getSkillsRequired() != null ? request.getSkillsRequired() : new ArrayList<>())
+                .salaryRange(request.getSalaryRange())
+                .applicationDeadline(request.getApplicationDeadline())
+                .isActive(true)
+                .build();
+
+        job = jobRepo.save(job);
+        log.info("Job created by user {}: {}", userId, job.getJobId());
+        return buildJobResponse(job, userId);
     }
 
     @Transactional(readOnly = true)
-    public Page<JobResponse> searchJobs(String location, String jobType, String experienceLevel, List<String> skills, String query, Long userId, Pageable pageable) {
+    public Page<JobResponse> searchJobs(String location, String jobType, String experienceLevel,
+                                        List<String> skills, String query, Long userId, Pageable pageable) {
         Page<Job> jobs;
-        if(query!=null && query.isEmpty()){
-            jobs=jobRepo.searchJobsByQuery(query,location,pageable);
-        }else{
-            Job.JobType type=jobType !=null ? Job.JobType.valueOf(jobType):null;
-            Job.ExperienceLevel level=experienceLevel !=null ? Job.ExperienceLevel.valueOf(experienceLevel) : null;
-            jobs=jobRepo.searchJobs(location,type,level,pageable);
+
+        if (query != null && !query.isEmpty()) {
+            jobs = jobRepo.searchJobsByQuery(query, location, pageable);
+        } else {
+            Job.JobType type = jobType != null ? Job.JobType.valueOf(jobType) : null;
+            Job.ExperienceLevel level = experienceLevel != null ? Job.ExperienceLevel.valueOf(experienceLevel) : null;
+            jobs = jobRepo.searchJobs(location, type, level, pageable);
         }
+
         return jobs.map(job -> buildJobResponse(job, userId));
     }
 
     @Transactional(readOnly = true)
     public JobResponse getJobById(Long jobId, Long userId) {
+        Job job = jobRepo.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        Job job=jobRepo.findById(jobId)
-                .orElseThrow(()->new RuntimeException("Job id not FOUND"));
-        return buildJobResponse(job,userId);
+        JobResponse response = buildJobResponse(job, userId);
+        return response;
     }
 
-    @Override
+
+    @Transactional(readOnly = true)
     public Page<JobResponse> getJobsByPoster(Long userId, Pageable pageable) {
         Page<Job> jobs = jobRepo.findByPostedByUserIdOrderByCreatedAtDesc(userId, pageable);
         return jobs.map(job -> buildJobResponse(job, userId));
     }
 
-    @Override
+    @Transactional
     public JobResponse updateJob(Long jobId, Long userId, JobRequest request) {
-        Job job=jobRepo.findById(jobId)
-                .orElseThrow(()->new RuntimeException("JOB id not FOUND"));
+        Job job = jobRepo.findById(jobId)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        if(!job.getPostedBy().getUserId().equals(userId)){
-            throw new RuntimeException("UnAuthorized User");
+        if (!job.getPostedBy().getUserId().equals(userId)) {
+            throw new RuntimeException("You can only update your own job postings");
         }
+
+        List<String> oldSkills = new ArrayList<>(job.getSkillsRequired());
+
         job.setCompanyName(request.getCompanyName());
         job.setJobTitle(request.getJobTitle());
         job.setJobDescription(request.getJobDescription());
@@ -96,8 +114,12 @@ public class JobServiceImpl implements JobService {
         job.setApplicationDeadline(request.getApplicationDeadline());
 
         job = jobRepo.save(job);
+
+
+
         return buildJobResponse(job, userId);
     }
+
     @Transactional
     public void deleteJob(Long jobId, Long userId) {
         Job job = jobRepo.findById(jobId)
@@ -110,7 +132,6 @@ public class JobServiceImpl implements JobService {
         jobRepo.delete(job);
         log.info("Job deleted: {}", jobId);
     }
-
 
     private JobResponse buildJobResponse(Job job, Long currentUserId) {
         boolean hasApplied = jobApplicationRepo.existsByJobJobIdAndUserUserId(job.getJobId(), currentUserId);
@@ -142,7 +163,7 @@ public class JobServiceImpl implements JobService {
                 .fullName(user.getFullName())
                 .headline(user.getHeadline())
                 .profilePictureUrl(user.getProfilePictureUrl())
+                .role(user.getRole())
                 .build();
-
     }
 }

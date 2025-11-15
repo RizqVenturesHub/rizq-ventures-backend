@@ -17,20 +17,4 @@ public interface UserService {
     public UserResponse getUserProfile(Long userId, Long currentUserId);
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request);
 
-    public ExperienceResponse addExperience(Long userId, ExperienceRequest request);
-    public List<ExperienceResponse> getUserExperiences(Long userId);
-    public ExperienceResponse updateExperience(Long userId, Long experienceId, ExperienceRequest request);
-    public void deleteExperience(Long userId, Long experienceId);
-
-    public EducationResponse addEducation( EducationRequest request,Long userId);
-    public List<EducationResponse> getUserEducation(Long userId);
-    public EducationResponse updateEducation(Long userId, Long educationId, EducationRequest request);
-    public void deleteEducation(Long userId, Long educationId);
-
-    public SkillResponse addSkill(Long userId, SkillRequest request);
-    public List<SkillResponse> getUserSkills(Long userId);
-    public List<SkillResponse> getPrimarySkills(Long userId);
-    public List<SkillResponse> getSecondarySkills(Long userId);
-    public SkillResponse updateSkill(Long userId, Long skillId, SkillRequest request);
-    public void deleteSkill(Long userId, Long skillId);
 }

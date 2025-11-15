@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
