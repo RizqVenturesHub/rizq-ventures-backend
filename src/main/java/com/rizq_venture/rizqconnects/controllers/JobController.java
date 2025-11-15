@@ -1,6 +1,9 @@
 package com.rizq_venture.rizqconnects.controllers;
 
+import com.rizq_venture.rizqconnects.dto.request.JobApplicationRequest;
 import com.rizq_venture.rizqconnects.dto.request.JobRequest;
+import com.rizq_venture.rizqconnects.dto.request.UpdateApplicationStatusRequest;
+import com.rizq_venture.rizqconnects.dto.response.JobApplicationResponse;
 import com.rizq_venture.rizqconnects.dto.response.JobResponse;
 import com.rizq_venture.rizqconnects.services.JobService;
 import jakarta.validation.Valid;
@@ -8,11 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -22,16 +24,17 @@ public class JobController {
 
     private final JobService jobService;
 
-    @PostMapping("/")
-    public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest jobRequest,
-                                                 Authentication authentication){
-
-        Long userId=Long.parseLong(authentication.getName());
-        JobResponse jobResponse=jobService.createJob(userId,jobRequest);
-        return ResponseEntity.ok(jobResponse);
+    @PostMapping
+    @PreAuthorize("hasAnyRole('MENTOR', 'PARTNER')")
+    public ResponseEntity<JobResponse> createJob(@Valid @RequestBody JobRequest request,
+                                                 Authentication authentication) {
+        Long userId = Long.parseLong(authentication.getName());
+        JobResponse response = jobService.createJob(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'MENTOR', 'PARTNER')")
     public ResponseEntity<Page<JobResponse>> searchJobs(
             @RequestParam(required = false) String location,
             @RequestParam(required = false) String jobType,
@@ -48,6 +51,7 @@ public class JobController {
     }
 
     @GetMapping("/{jobId}")
+    @PreAuthorize("hasAnyRole('USER', 'MENTOR', 'PARTNER')")
     public ResponseEntity<JobResponse> getJobById(@PathVariable Long jobId,
                                                   Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());
@@ -55,7 +59,20 @@ public class JobController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/my-jobs")
+    @PreAuthorize("hasAnyRole('MENTOR', 'PARTNER')")
+    public ResponseEntity<Page<JobResponse>> getMyJobs(
+            Authentication authentication,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Long userId = Long.parseLong(authentication.getName());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<JobResponse> jobs = jobService.getJobsByPoster(userId, pageable);
+        return ResponseEntity.ok(jobs);
+    }
+
     @PutMapping("/{jobId}")
+    @PreAuthorize("hasAnyRole('MENTOR', 'PARTNER')")
     public ResponseEntity<JobResponse> updateJob(@PathVariable Long jobId,
                                                  @Valid @RequestBody JobRequest request,
                                                  Authentication authentication) {
@@ -65,6 +82,7 @@ public class JobController {
     }
 
     @DeleteMapping("/{jobId}")
+    @PreAuthorize("hasAnyRole('MENTOR', 'PARTNER')")
     public ResponseEntity<Void> deleteJob(@PathVariable Long jobId,
                                           Authentication authentication) {
         Long userId = Long.parseLong(authentication.getName());

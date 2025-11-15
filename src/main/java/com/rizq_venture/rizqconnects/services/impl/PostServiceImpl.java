@@ -52,10 +52,7 @@ public class PostServiceImpl implements PostService {
 
     @Transactional(readOnly = true)
     public Page<PostResponse> getFeed(Long userId, Pageable pageable) {
-        // Fetch all posts in descending order of creation time
         Page<Post> posts = postRepo.findAllByOrderByCreatedAtDesc(pageable);
-
-        // Convert each Post entity to PostResponse
         return posts.map(post -> buildPostResponse(post, userId));
     }
 
@@ -117,13 +114,11 @@ public class PostServiceImpl implements PostService {
         Optional<Like> existingLike = likeRepo.findByPostPostIdAndUserUserId(postId, userId);
 
         if (existingLike.isPresent()) {
-            // Unlike
             likeRepo.delete(existingLike.get());
             post.setLikesCount(post.getLikesCount() - 1);
             postRepo.save(post);
             return false;
         } else {
-            // Like
             Like like = Like.builder()
                     .post(post)
                     .user(user)

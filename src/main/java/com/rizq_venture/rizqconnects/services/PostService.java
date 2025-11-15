@@ -13,6 +13,7 @@ public interface PostService {
     public Page<PostResponse> getUserPosts(Long targetUserId, Long currentUserId, Pageable pageable);
     public PostResponse updatePost(Long postId, Long userId, PostRequest request);
     public void deletePost(Long postId, Long userId);
+
     public boolean toggleLike(Long postId, Long userId);
     public Long getLikesCount(Long postId);
     public boolean isLikedByUser(Long postId, Long userId);

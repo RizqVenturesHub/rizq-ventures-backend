@@ -39,7 +39,6 @@ class JwtAuthFilter extends OncePerRequestFilter {
                 Long userId = tokenProvider.getUserIdFromToken(jwt);
                 Role role = tokenProvider.getRoleFromToken(jwt);
 
-                // Create authorities based on role
                 List<GrantedAuthority> authorities = new ArrayList<>();
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
 

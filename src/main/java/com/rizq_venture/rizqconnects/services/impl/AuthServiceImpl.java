@@ -29,31 +29,29 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
         public AuthResponse register(RegisterRequest request) {
         log.info("Registering new user with email: {} and role: {}",
-                request.getEmail(), request.getRole());
+                request.getEmail(),Role.USER);
 
-        // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered: " + request.getEmail());
         }
 
-        // Default role to USER if not specified
-        Role role = request.getRole() != null ? request.getRole() : Role.USER;
 
-        // Validate role-specific requirements
+        Role role = Role.USER;
+
         validateRoleRequirements(role, request);
 
-        // Create new user
+
         Users user = Users.builder()
                 .email(request.getEmail())
                 .passwordHash(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .headline(request.getHeadline())
                 .location(request.getLocation())
-                .role(role)
+                .role(Role.USER)
                 .isActive(true)
                 .build();
 
-        // Set role-specific fields
+
         if (role == Role.PARTNER) {
             user.setOrganizationName(request.getOrganizationName());
         } else if (role == Role.MENTOR) {
@@ -67,7 +65,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("User registered successfully with ID: {} and role: {}",
                 user.getUserId(), user.getRole());
 
-        // Generate JWT token with role
         String token = jwtTokenProvider.generateToken(
                 user.getUserId(),
                 user.getEmail(),
@@ -75,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getRole()
         );
 
-        // Build response
+
         UserResponse userResponse = buildUserResponse(user);
 
         return AuthResponse.builder()
@@ -88,16 +85,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
         log.info("Login attempt for email: {}", request.getEmail());
 
-        // Find user by email
         Users user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
-        // Check if account is active
         if (!user.getIsActive()) {
             throw new RuntimeException("Account is deactivated");
         }
 
-        // Verify password
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new RuntimeException("Invalid email or password");
         }
@@ -105,7 +99,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("User logged in successfully: {} with role: {}",
                 user.getUserId(), user.getRole());
 
-        // Generate JWT token with role
         String token = jwtTokenProvider.generateToken(
                 user.getUserId(),
                 user.getEmail(),
@@ -113,7 +106,6 @@ public class AuthServiceImpl implements AuthService {
                 user.getRole()
         );
 
-        // Build response
         UserResponse userResponse = buildUserResponse(user);
 
         return AuthResponse.builder()

@@ -1,5 +1,5 @@
-
 package com.rizq_venture.rizqconnects.security;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-// ==================== SecurityConfig ====================
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -48,8 +47,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+                .addFilterBefore(jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

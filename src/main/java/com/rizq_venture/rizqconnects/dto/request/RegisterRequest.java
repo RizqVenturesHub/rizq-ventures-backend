@@ -35,7 +35,7 @@ public class RegisterRequest {
     @Size(max = 100, message = "Location must not exceed 100 characters")
     private String location;
 
-    private Role role;
+
 
     @Size(max = 200, message = "Organization name must not exceed 200 characters")
     private String organizationName;

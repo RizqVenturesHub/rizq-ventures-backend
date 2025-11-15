@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class JobApplicationRequest {
+public class JobApplicationRequest {
 
     private String resumeUrl;
 

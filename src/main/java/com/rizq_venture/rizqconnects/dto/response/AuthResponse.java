@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.dto.response;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface JobRepo extends JpaRepository<Job,Long> {
 
@@ -32,4 +34,12 @@ public interface JobRepo extends JpaRepository<Job,Long> {
                                 Pageable pageable);
 
     Page<Job> findByPostedByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    @Query(value = "SELECT DISTINCT j.* FROM jobs j " +
+            "JOIN job_skills js ON j.job_id = js.job_id " +
+            "WHERE j.is_active = true " +
+            "AND LOWER(js.skill_name) IN :skills " +
+            "ORDER BY j.created_at DESC " +
+            "LIMIT :limit", nativeQuery = true)
+    List<Job> findRecommendedJobs(@Param("skills") List<String> skills, @Param("limit") int limit);
+
 }

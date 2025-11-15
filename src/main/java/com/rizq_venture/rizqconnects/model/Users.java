@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-
 @Entity
 @Table(name = "users")
 @Data
@@ -62,26 +61,21 @@ public class Users {
     @Column(name = "website_url", length = 300)
     private String websiteUrl;
 
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
     private Role role = Role.USER;
 
-
     @Column(name = "organization_name", length = 200)
     private String organizationName;
-
 
     @ElementCollection
     @CollectionTable(name = "mentor_specializations", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "specialization")
     private Set<String> specializations = new HashSet<>();
 
-
     @Column(name = "years_of_experience")
     private Integer yearsOfExperience;
-
 
     @Column(name = "is_verified_mentor")
     @Builder.Default
@@ -109,8 +103,6 @@ public class Users {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Skill> skills = new ArrayList<>();
 
-
-
     // Helper methods for role checking
     public boolean isUser() {
         return this.role == Role.USER;
@@ -124,22 +116,27 @@ public class Users {
         return this.role == Role.PARTNER;
     }
 
+    public boolean isSuperAdmin() {
+        return this.role == Role.SUPER_ADMIN;
+    }
+
     public boolean canPostJobs() {
         return this.role == Role.MENTOR || this.role == Role.PARTNER;
     }
 
+    public boolean canManageRoles() {
+        return this.role == Role.SUPER_ADMIN;
+    }
+
     public boolean canSendMessageTo(Users recipient) {
-        // USER can only message MENTOR
+
         if (this.isUser()) {
             return recipient.isMentor();
         }
 
-        // MENTOR can message USER
         if (this.isMentor()) {
             return recipient.isUser();
         }
-
-        // PARTNER cannot send direct messages
         return false;
     }
 }

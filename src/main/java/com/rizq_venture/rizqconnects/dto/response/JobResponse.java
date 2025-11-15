@@ -31,4 +31,5 @@ public class JobResponse {
     private Boolean hasApplied;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Double skillMatchPercentage;
 }
