@@ -4,6 +4,10 @@ import com.rizq_venture.rizqconnects.dto.request.JobApplicationRequest;
 import com.rizq_venture.rizqconnects.dto.response.JobApplicationResponse;
 import com.rizq_venture.rizqconnects.dto.response.JobResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.exception.BadRequestException;
+import com.rizq_venture.rizqconnects.exception.DuplicateResourceException;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
+import com.rizq_venture.rizqconnects.exception.UnauthorizedException;
 import com.rizq_venture.rizqconnects.model.Job;
 import com.rizq_venture.rizqconnects.model.JobApplication;
 import com.rizq_venture.rizqconnects.model.Role;
@@ -31,21 +35,21 @@ public class jobApplicationServiceImpl implements JobApplicationService {
     @Transactional
     public JobApplicationResponse applyForJob(Long jobId, Long userId, JobApplicationRequest request) {
         Job job = jobRepo.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (user.getRole() != Role.USER) {
             throw new RuntimeException("Only regular users can apply for jobs");
         }
 
         if (jobApplicationRepo.existsByJobJobIdAndUserUserId(jobId, userId)) {
-            throw new RuntimeException("You have already applied for this job");
+            throw new DuplicateResourceException("You have already applied for this job");
         }
 
         if (!job.getIsActive()) {
-            throw new RuntimeException("This job is no longer accepting applications");
+            throw new BadRequestException("This job is no longer accepting applications");
         }
 
         JobApplication application = JobApplication.builder()
@@ -72,10 +76,10 @@ public class jobApplicationServiceImpl implements JobApplicationService {
     @Transactional(readOnly = true)
     public Page<JobApplicationResponse> getJobApplications(Long jobId, Long userId, Pageable pageable) {
         Job job = jobRepo.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         if (!job.getPostedBy().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only view applications for your own job postings");
+            throw new UnauthorizedException("You can only view applications for your own job postings");
         }
 
         Page<JobApplication> applications = jobApplicationRepo
@@ -87,10 +91,10 @@ public class jobApplicationServiceImpl implements JobApplicationService {
     public JobApplicationResponse updateApplicationStatus(Long applicationId, Long userId,
                                                           JobApplication.ApplicationStatus status) {
         JobApplication application = jobApplicationRepo.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
 
         if (!application.getJob().getPostedBy().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only update applications for your own job postings");
+            throw new UnauthorizedException("You can only update applications for your own job postings");
         }
 
         application.setStatus(status);

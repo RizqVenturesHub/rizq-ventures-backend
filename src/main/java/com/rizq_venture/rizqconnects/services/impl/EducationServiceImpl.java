@@ -2,6 +2,7 @@ package com.rizq_venture.rizqconnects.services.impl;
 
 import com.rizq_venture.rizqconnects.dto.request.EducationRequest;
 import com.rizq_venture.rizqconnects.dto.response.EducationResponse;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
 import com.rizq_venture.rizqconnects.model.Education;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.EducationRepo;
@@ -27,7 +28,7 @@ public class EducationServiceImpl implements EducationService {
     public EducationResponse addEducation(EducationRequest request, Long userId) {
 
         Users user=userRepo.findById(userId)
-                .orElseThrow(()->new RuntimeException("ID not FOUND"));
+                .orElseThrow(()->new ResourceNotFoundException("ID not FOUND"));
 
         Education education=Education.builder()
                 .user(user)
@@ -53,7 +54,7 @@ public class EducationServiceImpl implements EducationService {
     @Transactional
     public EducationResponse updateEducation(Long userId, Long educationId, EducationRequest request) {
         Education education = educationRepo.findByEducationIdAndUserUserId(educationId, userId)
-                .orElseThrow(() -> new RuntimeException("Education not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Education not found"));
 
         education.setSchoolName(request.getSchoolName());
         education.setDegree(request.getDegree());
@@ -69,7 +70,7 @@ public class EducationServiceImpl implements EducationService {
     @Transactional
     public void deleteEducation(Long userId, Long educationId) {
         Education education = educationRepo.findByEducationIdAndUserUserId(educationId, userId)
-                .orElseThrow(() -> new RuntimeException("Education not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Education not found"));
         educationRepo.delete(education);
     }
 
