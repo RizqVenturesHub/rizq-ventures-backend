@@ -1,13 +1,11 @@
 package com.rizq_venture.rizqconnects.services.impl;
 
-import com.rizq_venture.rizqconnects.dto.request.JobApplicationRequest;
 import com.rizq_venture.rizqconnects.dto.request.JobRequest;
-import com.rizq_venture.rizqconnects.dto.response.JobApplicationResponse;
 import com.rizq_venture.rizqconnects.dto.response.JobResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
+import com.rizq_venture.rizqconnects.exception.UnauthorizedException;
 import com.rizq_venture.rizqconnects.model.Job;
-import com.rizq_venture.rizqconnects.model.JobApplication;
-import com.rizq_venture.rizqconnects.model.Role;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.JobApplicationRepo;
 import com.rizq_venture.rizqconnects.repository.JobRepo;
@@ -19,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +32,10 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public JobResponse createJob(Long userId, JobRequest request) {
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!user.canPostJobs()) {
-            throw new RuntimeException("Only Mentors and Partners can post jobs");
+            throw new UnauthorizedException("Only Mentors and Partners can post jobs");
         }
 
         Job job = Job.builder()
@@ -79,7 +76,7 @@ public class JobServiceImpl implements JobService {
     @Transactional(readOnly = true)
     public JobResponse getJobById(Long jobId, Long userId) {
         Job job = jobRepo.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         JobResponse response = buildJobResponse(job, userId);
         return response;
@@ -95,10 +92,10 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public JobResponse updateJob(Long jobId, Long userId, JobRequest request) {
         Job job = jobRepo.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         if (!job.getPostedBy().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only update your own job postings");
+            throw new UnauthorizedException("You can only update your own job postings");
         }
 
         List<String> oldSkills = new ArrayList<>(job.getSkillsRequired());
@@ -123,10 +120,10 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public void deleteJob(Long jobId, Long userId) {
         Job job = jobRepo.findById(jobId)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         if (!job.getPostedBy().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own job postings");
+            throw new UnauthorizedException("You can only delete your own job postings");
         }
 
         jobRepo.delete(job);

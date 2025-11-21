@@ -4,6 +4,10 @@ import com.rizq_venture.rizqconnects.dto.response.AuthResponse;
 import com.rizq_venture.rizqconnects.dto.request.LoginRequest;
 import com.rizq_venture.rizqconnects.dto.request.RegisterRequest;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.exception.BadRequestException;
+import com.rizq_venture.rizqconnects.exception.DuplicateResourceException;
+import com.rizq_venture.rizqconnects.exception.InvalidCredentialsException;
+import com.rizq_venture.rizqconnects.exception.UnauthorizedException;
 import com.rizq_venture.rizqconnects.model.Role;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.UserRepo;
@@ -32,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
                 request.getEmail(),Role.USER);
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered: " + request.getEmail());
+            throw new DuplicateResourceException("Email already registered: " + request.getEmail());
         }
 
 
@@ -58,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             user.setSpecializations(request.getSpecializations() != null
                     ? request.getSpecializations() : new HashSet<>());
             user.setYearsOfExperience(request.getYearsOfExperience());
-            user.setIsVerifiedMentor(false); // Requires admin verification
+            user.setIsVerifiedMentor(false); 
         }
 
         user = userRepository.save(user);
@@ -86,14 +90,14 @@ public class AuthServiceImpl implements AuthService {
         log.info("Login attempt for email: {}", request.getEmail());
 
         Users user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password"));
 
         if (!user.getIsActive()) {
-            throw new RuntimeException("Account is deactivated");
+            throw new BadRequestException("Account is deactivated");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid email or password");
+            throw new InvalidCredentialsException("Invalid email or password");
         }
 
         log.info("User logged in successfully: {} with role: {}",
@@ -121,14 +125,14 @@ public class AuthServiceImpl implements AuthService {
     private void validateRoleRequirements(Role role, RegisterRequest request) {
         if (role == Role.PARTNER) {
             if (request.getOrganizationName() == null || request.getOrganizationName().trim().isEmpty()) {
-                throw new RuntimeException("Organization name is required for Partner registration");
+                throw new BadRequestException("Organization name is required for Partner registration");
             }
         } else if (role == Role.MENTOR) {
             if (request.getSpecializations() == null || request.getSpecializations().isEmpty()) {
-                throw new RuntimeException("At least one specialization is required for Mentor registration");
+                throw new BadRequestException("At least one specialization is required for Mentor registration");
             }
             if (request.getYearsOfExperience() == null || request.getYearsOfExperience() < 0) {
-                throw new RuntimeException("Valid years of experience is required for Mentor registration");
+                throw new UnauthorizedException("Valid years of experience is required for Mentor registration");
             }
         }
     }

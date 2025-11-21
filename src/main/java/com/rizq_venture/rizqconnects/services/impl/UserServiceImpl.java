@@ -4,6 +4,7 @@ import com.rizq_venture.rizqconnects.dto.response.EducationResponse;
 import com.rizq_venture.rizqconnects.dto.response.ExperienceResponse;
 import com.rizq_venture.rizqconnects.dto.response.SkillResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
 import com.rizq_venture.rizqconnects.model.Education;
 import com.rizq_venture.rizqconnects.model.Experience;
 import com.rizq_venture.rizqconnects.dto.request.UpdateProfileRequest;
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
     public UserResponse getUserProfile(Long userId, Long currentUserId) {
 
         Users users = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException
+                .orElseThrow(() -> new ResourceNotFoundException
                         ("User Id Not FOUND"));
 
         UserResponse userResponse = buildUserResponse(users);
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 
         if (request.getHeadline() != null) user.setHeadline(request.getHeadline());

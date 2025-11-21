@@ -1,10 +1,8 @@
 package com.rizq_venture.rizqconnects.services.impl;
 
 import com.rizq_venture.rizqconnects.dto.request.ExperienceRequest;
-import com.rizq_venture.rizqconnects.dto.response.EducationResponse;
 import com.rizq_venture.rizqconnects.dto.response.ExperienceResponse;
-import com.rizq_venture.rizqconnects.dto.response.UserResponse;
-import com.rizq_venture.rizqconnects.model.Education;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
 import com.rizq_venture.rizqconnects.model.Experience;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.ExperienceRepo;
@@ -14,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,7 +26,7 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Transactional
     public ExperienceResponse addExperience(Long userId, ExperienceRequest request) {
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Experience experience = Experience.builder()
                 .user(user)
@@ -62,7 +59,7 @@ public class ExperienceServiceImpl implements ExperienceService {
                                                ExperienceRequest request) {
         Experience experience = experienceRepo
                 .findByExperienceIdAndUserUserId(experienceId, userId)
-                .orElseThrow(() -> new RuntimeException("Experience not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Experience not found"));
 
         experience.setCompanyName(request.getCompanyName());
         experience.setJobTitle(request.getJobTitle());
@@ -79,7 +76,7 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Transactional
     public void deleteExperience(Long userId, Long experienceId) {
         Experience experience = experienceRepo.findByExperienceIdAndUserUserId(experienceId, userId)
-                .orElseThrow(() -> new RuntimeException("Experience not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Experience not found"));
         experienceRepo.delete(experience);
         log.info("Experience deleted: {}", experienceId);
     }

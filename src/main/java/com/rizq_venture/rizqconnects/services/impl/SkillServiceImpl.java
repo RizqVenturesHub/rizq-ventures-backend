@@ -2,6 +2,8 @@ package com.rizq_venture.rizqconnects.services.impl;
 
 import com.rizq_venture.rizqconnects.dto.request.SkillRequest;
 import com.rizq_venture.rizqconnects.dto.response.SkillResponse;
+import com.rizq_venture.rizqconnects.exception.BadRequestException;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
 import com.rizq_venture.rizqconnects.model.Skill;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.SkillRepo;
@@ -11,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,15 +27,15 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public SkillResponse addSkill(Long userId, SkillRequest request) {
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (skillRepo.existsByUserUserIdAndSkillNameIgnoreCase(userId, request.getSkillName())) {
-            throw new RuntimeException("Skill already exists");
+            throw new ResourceNotFoundException("Skill already exists");
         }
         if (request.getSkillType() == Skill.SkillType.PRIMARY) {
             Long primaryCount = skillRepo.countPrimarySkills(userId);
             if (primaryCount >= 5) {
-                throw new RuntimeException("Maximum 5 primary skills allowed. Please set existing skills as secondary or remove some.");
+                throw new BadRequestException("Maximum 5 primary skills allowed. Please set existing skills as secondary or remove some.");
             }
         }
 
@@ -79,13 +80,13 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public SkillResponse updateSkill(Long userId, Long skillId, SkillRequest request) {
         Skill skill = skillRepo.findBySkillIdAndUserUserId(skillId, userId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
 
         if (request.getSkillType() == Skill.SkillType.PRIMARY &&
                 skill.getSkillType() != Skill.SkillType.PRIMARY) {
             Long primaryCount = skillRepo.countPrimarySkills(userId);
             if (primaryCount >= 5) {
-                throw new RuntimeException("Maximum 5 primary skills allowed");
+                throw new BadRequestException("Maximum 5 primary skills allowed");
             }
         }
 
@@ -102,7 +103,7 @@ public class SkillServiceImpl implements SkillService {
     @Transactional
     public void deleteSkill(Long userId, Long skillId) {
         Skill skill = skillRepo.findBySkillIdAndUserUserId(skillId, userId)
-                .orElseThrow(() -> new RuntimeException("Skill not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill not found"));
         skillRepo.delete(skill);
         log.info("Skill deleted: {} for user {}", skillId, userId);
     }

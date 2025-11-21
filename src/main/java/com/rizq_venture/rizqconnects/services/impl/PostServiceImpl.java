@@ -3,6 +3,8 @@ package com.rizq_venture.rizqconnects.services.impl;
 import com.rizq_venture.rizqconnects.dto.request.PostRequest;
 import com.rizq_venture.rizqconnects.dto.response.PostResponse;
 import com.rizq_venture.rizqconnects.dto.response.UserResponse;
+import com.rizq_venture.rizqconnects.exception.ResourceNotFoundException;
+import com.rizq_venture.rizqconnects.exception.UnauthorizedException;
 import com.rizq_venture.rizqconnects.model.Like;
 import com.rizq_venture.rizqconnects.model.Post;
 import com.rizq_venture.rizqconnects.model.Users;
@@ -16,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -33,7 +34,7 @@ public class PostServiceImpl implements PostService {
     public PostResponse createPost(Long userId, PostRequest request) {
 
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Id Not FOUND"));
+                .orElseThrow(() -> new ResourceNotFoundException("Id Not FOUND"));
 
         Post post = Post.builder()
                 .user(user)
@@ -59,7 +60,7 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long postId, Long userId) {
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
         return buildPostResponse(post, userId);
     }
 
@@ -72,10 +73,10 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostResponse updatePost(Long postId, Long userId, PostRequest request) {
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
         if (!post.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only update your own posts");
+            throw new UnauthorizedException("You can only update your own posts");
         }
 
         post.setContent(request.getContent());
@@ -93,10 +94,10 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void deletePost(Long postId, Long userId) {
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
         if (!post.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("You can only delete your own posts");
+            throw new UnauthorizedException("You can only delete your own posts");
         }
 
         postRepo.delete(post);
@@ -106,10 +107,10 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public boolean toggleLike(Long postId, Long userId) {
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Post not found"));
 
         Users user = userRepo.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Optional<Like> existingLike = likeRepo.findByPostPostIdAndUserUserId(postId, userId);
 
