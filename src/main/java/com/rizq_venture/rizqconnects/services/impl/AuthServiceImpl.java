@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
             user.setSpecializations(request.getSpecializations() != null
                     ? request.getSpecializations() : new HashSet<>());
             user.setYearsOfExperience(request.getYearsOfExperience());
-            user.setIsVerifiedMentor(false); 
+            user.setIsVerifiedMentor(false);
         }
 
         user = userRepository.save(user);
