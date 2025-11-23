@@ -21,7 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Users {
+public class Users{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,7 +69,7 @@ public class Users {
     @Column(name = "organization_name", length = 200)
     private String organizationName;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "mentor_specializations", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "specialization")
     private Set<String> specializations = new HashSet<>();
