@@ -34,6 +34,7 @@ public interface JobRepo extends JpaRepository<Job,Long> {
                                 Pageable pageable);
 
     Page<Job> findByPostedByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
     @Query(value = "SELECT DISTINCT j.* FROM jobs j " +
             "JOIN job_skills js ON j.job_id = js.job_id " +
             "WHERE j.is_active = true " +
@@ -41,5 +42,6 @@ public interface JobRepo extends JpaRepository<Job,Long> {
             "ORDER BY j.created_at DESC " +
             "LIMIT :limit", nativeQuery = true)
     List<Job> findRecommendedJobs(@Param("skills") List<String> skills, @Param("limit") int limit);
+
 
 }

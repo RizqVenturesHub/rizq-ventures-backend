@@ -9,7 +9,9 @@ import com.rizq_venture.rizqconnects.model.Job;
 import com.rizq_venture.rizqconnects.model.Users;
 import com.rizq_venture.rizqconnects.repository.JobApplicationRepo;
 import com.rizq_venture.rizqconnects.repository.JobRepo;
+import com.rizq_venture.rizqconnects.repository.SkillRepo;
 import com.rizq_venture.rizqconnects.repository.UserRepo;
+import com.rizq_venture.rizqconnects.services.JobMatchingService;
 import com.rizq_venture.rizqconnects.services.JobService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class JobServiceImpl implements JobService {
     private final JobRepo jobRepo;
     private final JobApplicationRepo jobApplicationRepo;
     private final UserRepo userRepo;
+    private final SkillRepo skillRepo;
+    private final JobMatchingService jobMatchingService;
 
     @Transactional
     public JobResponse createJob(Long userId, JobRequest request) {
@@ -54,6 +59,15 @@ public class JobServiceImpl implements JobService {
 
         job = jobRepo.save(job);
         log.info("Job created by user {}: {}", userId, job.getJobId());
+
+
+        try {
+            jobMatchingService.notifyMatchingUsers(job);
+            log.info("Skill matching completed for job {}", job.getJobId());
+        } catch (Exception e) {
+            log.error("Error during skill matching for job {}: {}", job.getJobId(), e.getMessage());
+        }
+
         return buildJobResponse(job, userId);
     }
 
@@ -79,6 +93,13 @@ public class JobServiceImpl implements JobService {
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         JobResponse response = buildJobResponse(job, userId);
+        try {
+            Double matchPercentage = jobMatchingService.calculateSkillMatchPercentage(userId, jobId);
+            response.setSkillMatchPercentage(matchPercentage);
+        } catch (Exception e) {
+            log.error("Error calculating skill match: {}", e.getMessage());
+        }
+
         return response;
     }
 
@@ -111,7 +132,14 @@ public class JobServiceImpl implements JobService {
         job.setApplicationDeadline(request.getApplicationDeadline());
 
         job = jobRepo.save(job);
-
+        if (!oldSkills.equals(request.getSkillsRequired())) {
+            try {
+                jobMatchingService.notifyMatchingUsers(job);
+                log.info("Skill matching triggered after job update {}", job.getJobId());
+            } catch (Exception e) {
+                log.error("Error during skill matching after update: {}", e.getMessage());
+            }
+        }
 
 
         return buildJobResponse(job, userId);
@@ -128,6 +156,14 @@ public class JobServiceImpl implements JobService {
 
         jobRepo.delete(job);
         log.info("Job deleted: {}", jobId);
+    }
+    @Transactional(readOnly = true)
+    public List<JobResponse> getRecommendedJobs(Long userId, int limit) {
+        List<Job> recommendedJobs = jobMatchingService.getRecommendedJobs(userId, limit);
+
+        return recommendedJobs.stream()
+                .map(job -> buildJobResponse(job, userId))
+                .toList();
     }
 
     private JobResponse buildJobResponse(Job job, Long currentUserId) {

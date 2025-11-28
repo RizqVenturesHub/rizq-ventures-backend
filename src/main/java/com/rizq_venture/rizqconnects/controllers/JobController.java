@@ -5,6 +5,7 @@ import com.rizq_venture.rizqconnects.dto.request.JobRequest;
 import com.rizq_venture.rizqconnects.dto.request.UpdateApplicationStatusRequest;
 import com.rizq_venture.rizqconnects.dto.response.JobApplicationResponse;
 import com.rizq_venture.rizqconnects.dto.response.JobResponse;
+import com.rizq_venture.rizqconnects.services.JobMatchingService;
 import com.rizq_venture.rizqconnects.services.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
+    private final JobMatchingService jobMatchingService;
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MENTOR', 'PARTNER')")
@@ -88,5 +90,15 @@ public class JobController {
         Long userId = Long.parseLong(authentication.getName());
         jobService.deleteJob(jobId, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/recommended")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<JobResponse>> getRecommendedJobs(
+            Authentication authentication,
+            @RequestParam(defaultValue = "10") int limit) {
+        Long userId = Long.parseLong(authentication.getName());
+        List<JobResponse> jobs =jobService.getRecommendedJobs(userId, limit);
+        return ResponseEntity.ok(jobs);
     }
 }
