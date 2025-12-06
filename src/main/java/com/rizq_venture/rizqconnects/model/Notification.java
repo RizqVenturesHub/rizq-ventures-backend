@@ -50,6 +50,7 @@ public class Notification {
         CONNECTION_REQUEST,
         CONNECTION_ACCEPTED,
         POST_LIKED,
+        ROLE_CHANGE,
         POST_COMMENTED,
         JOB_APPLICATION_RECEIVED,
         JOB_APPLICATION_STATUS_CHANGED,

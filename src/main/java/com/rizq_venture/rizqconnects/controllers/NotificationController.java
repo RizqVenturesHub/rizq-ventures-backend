@@ -1,6 +1,5 @@
 package com.rizq_venture.rizqconnects.controllers;
 
-
 import com.rizq_venture.rizqconnects.dto.response.NotificationResponse;
 import com.rizq_venture.rizqconnects.services.NotificationService;
 import lombok.RequiredArgsConstructor;
