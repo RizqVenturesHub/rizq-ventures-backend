@@ -1,19 +1,27 @@
 package com.rizq_venture.rizqconnects.config;
 
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.OpenAPI;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Rizq Connect API",
+                version = "v1.0",
+                description = "Rizq Venture - LinkedIn-like platform backend API documentation"
+        ),
+        security = @SecurityRequirement(name = "bearerAuth")
+)
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer"
+)
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI rizqConnectAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Rizq Connect API")
-                        .description("Rizq Venture - LinkedIn-like platform backend API documentation")
-                        .version("v1.0"));
-    }
 }

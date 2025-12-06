@@ -25,13 +25,15 @@ public class RoleChangeRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "requested_role", nullable = false)
-    private Role requestedRole;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "current_role", nullable = false)
+    @Column(name = "\"current_role\"")
     private Role currentRole;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "\"requested_role\"")
+    private Role requestedRole;
+
 
     @Column(name = "reason", columnDefinition = "TEXT")
     private String reason;
