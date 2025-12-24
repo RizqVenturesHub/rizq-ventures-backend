@@ -9,7 +9,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -40,11 +42,10 @@ public class Post {
     @Column(name = "media_url", length = 500)
     private List<String> mediaUrls = new ArrayList<>();
 
-    // NEW: Add tags field
     @ElementCollection
     @CollectionTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "tag", length = 50)
-    private List<String> tags = new ArrayList<>();
+    private Set<String> tags = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "post_type", length = 20)

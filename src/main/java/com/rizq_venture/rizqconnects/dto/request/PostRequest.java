@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,7 +24,7 @@ public class PostRequest {
     private List<String> mediaUrls;
 
 
-    private List<String> tags;
+    private Set<String> tags;
 
     private Post.PostType postType;
 }

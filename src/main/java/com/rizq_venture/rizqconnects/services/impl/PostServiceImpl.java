@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -40,7 +41,7 @@ public class PostServiceImpl implements PostService {
                 .title(request.getTitle()) // NEW
                 .content(request.getContent())
                 .mediaUrls(request.getMediaUrls() != null ? request.getMediaUrls() : new ArrayList<>())
-                .tags(request.getTags() != null ? request.getTags() : new ArrayList<>()) // NEW
+                .tags(request.getTags() != null ? request.getTags() : new HashSet<>())
                 .postType(request.getPostType() != null ? request.getPostType() : Post.PostType.TEXT)
                 .likesCount(0)
                 .commentsCount(0)

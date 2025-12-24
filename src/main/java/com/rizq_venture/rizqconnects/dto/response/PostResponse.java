@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class PostResponse {
     private String title; // NEW
     private String content;
     private List<String> mediaUrls;
-    private List<String> tags; // NEW
+    private Set<String> tags;
     private Post.PostType postType;
     private Integer likesCount;
     private Integer commentsCount;
