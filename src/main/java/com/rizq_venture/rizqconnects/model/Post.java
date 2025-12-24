@@ -28,6 +28,10 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
+    // NEW: Add title field
+    @Column(length = 255)
+    private String title;
+
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
@@ -35,6 +39,12 @@ public class Post {
     @CollectionTable(name = "post_media", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "media_url", length = 500)
     private List<String> mediaUrls = new ArrayList<>();
+
+    // NEW: Add tags field
+    @ElementCollection
+    @CollectionTable(name = "post_tags", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "tag", length = 50)
+    private List<String> tags = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "post_type", length = 20)

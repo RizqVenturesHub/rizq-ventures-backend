@@ -32,14 +32,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse createPost(Long userId, PostRequest request) {
-
         Users user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Id Not FOUND"));
 
         Post post = Post.builder()
                 .user(user)
+                .title(request.getTitle()) // NEW
                 .content(request.getContent())
                 .mediaUrls(request.getMediaUrls() != null ? request.getMediaUrls() : new ArrayList<>())
+                .tags(request.getTags() != null ? request.getTags() : new ArrayList<>()) // NEW
                 .postType(request.getPostType() != null ? request.getPostType() : Post.PostType.TEXT)
                 .likesCount(0)
                 .commentsCount(0)
@@ -49,7 +50,6 @@ public class PostServiceImpl implements PostService {
 
         return buildPostResponse(post, userId);
     }
-
 
     @Transactional(readOnly = true)
     public Page<PostResponse> getFeed(Long userId, Pageable pageable) {
@@ -79,9 +79,15 @@ public class PostServiceImpl implements PostService {
             throw new UnauthorizedException("You can only update your own posts");
         }
 
+        if (request.getTitle() != null) { // NEW
+            post.setTitle(request.getTitle());
+        }
         post.setContent(request.getContent());
         if (request.getMediaUrls() != null) {
             post.setMediaUrls(request.getMediaUrls());
+        }
+        if (request.getTags() != null) { // NEW
+            post.setTags(request.getTags());
         }
         if (request.getPostType() != null) {
             post.setPostType(request.getPostType());
@@ -142,14 +148,17 @@ public class PostServiceImpl implements PostService {
     }
 
 
+
     private PostResponse buildPostResponse(Post post, Long currentUserId) {
         boolean isLiked = likeRepo.existsByPostPostIdAndUserUserId(post.getPostId(), currentUserId);
 
         return PostResponse.builder()
                 .postId(post.getPostId())
                 .author(buildUserResponse(post.getUser()))
+                .title(post.getTitle()) // NEW
                 .content(post.getContent())
                 .mediaUrls(post.getMediaUrls())
+                .tags(post.getTags()) // NEW
                 .postType(post.getPostType())
                 .likesCount(post.getLikesCount())
                 .commentsCount(post.getCommentsCount())
